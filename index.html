@@ -77,28 +77,29 @@ async function handleGoogleLogin(response){
     const payload = parseJwt(idToken);
     googleEmail = payload.email;
 
+    // ✅ store email immediately after login
+    sessionStorage.setItem("googleEmail", googleEmail);
+
     const docId = googleEmail.replace(/[@.]/g,'_');
 
-    // 🔹 Check Firestore if user/admin already exists
     try {
         const adminUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/admin/${docId}?key=${apiKey}`;
         const userUrl  = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`;
 
         let res = await fetch(adminUrl);
         if(res.ok){
-            // Admin exists → redirect
+            sessionStorage.setItem("role", "Admin"); // ✅ store role
             window.location.href = "admin.html";
             return;
         }
 
         res = await fetch(userUrl);
         if(res.ok){
-            // User exists → redirect
+            sessionStorage.setItem("role", "User"); // ✅ store role
             window.location.href = "user.html";
             return;
         }
 
-        // If neither exists → show role selection
         document.getElementById("loginCard").style.display="none";
         document.getElementById("roleForm").style.display="block";
 
@@ -106,6 +107,7 @@ async function handleGoogleLogin(response){
         alert("Error checking user role: "+err);
     }
 }
+
 
 
 // 🔹 Submit role
