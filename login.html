@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlippedCart - Google Auth + Role</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+body { font-family: Arial; display:flex; justify-content:center; align-items:center; flex-direction:column; height:100vh; background:#f7f8fc;}
+.card { background:white; padding:25px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center; width:350px; margin-top:10px;}
+select,input { width:90%; padding:8px; margin:6px 0; border-radius:5px; }
+button { width:95%; padding:10px; margin-top:10px; border:none; border-radius:8px; background:#4285F4; color:white; cursor:pointer; }
+#roleForm,#extraForm { display:none; }
+</style>
+</head>
+<body>
+
+<div class="card" id="loginCard">
+  <h2>FlippedCart Login</h2>
+  <div id="g_id_onload"
+       data-client_id="336616953225-lf8gemh128jsd4rmddjc3d2oc4g3bkog.apps.googleusercontent.com"
+       data-context="signup"
+       data-ux_mode="popup"
+       data-callback="handleGoogleLogin">
+  </div>
+  <div class="g_id_signin" data-type="standard"></div>
+</div>
+
+<div class="card" id="roleForm">
+  <h3>Select Role</h3>
+  <select id="roleSelect">
+    <option value="">--Choose Role--</option>
+    <option value="Admin">Admin</option>
+    <option value="User">User</option>
+  </select>
+  <br>
+  <button onclick="submitRole()">Confirm Role</button>
+</div>
+
+<div class="card" id="extraForm">
+  <h3>Enter User Info</h3>
+  <input type="text" id="fullName" placeholder="Full Name"><br>
+  <input type="text" id="phone" placeholder="Phone"><br>
+  <button onclick="submitExtraInfo()">Submit</button>
+</div>
+
+<script>
+// 🔹 Config
+const projectId = "flippedcart8751"; // Firebase project ID
+const apiKey = "AIzaSyAR10NJqR8wUDIimsxHMsW307P_vdbO_dE";       // Firebase Web API key
+
+let idToken = null;
+let googleEmail = null;
+let selectedRole = null;
+
+// 🔹 Decode Google ID token to get email
+function parseJwt (token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(decodeURIComponent(atob(base64).split('').map(function(c){
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join('')));
+}
+
+// 🔹 Google login callback
+function handleGoogleLogin(response){
+    idToken = response.credential;
+    const payload = parseJwt(idToken);
+    googleEmail = payload.email;
+
+    // Show role selection for first time
+    document.getElementById("loginCard").style.display="none";
+    document.getElementById("roleForm").style.display="block";
+}
+
+// 🔹 Submit role
+function submitRole(){
+    selectedRole = document.getElementById("roleSelect").value;
+    if(!selectedRole) return alert("Choose a role");
+
+    document.getElementById("roleForm").style.display="none";
+
+    if(selectedRole==="User"){
+        document.getElementById("extraForm").style.display="block";
+    } else {
+        // Admin → register directly
+        registerInFirestore({});
+    }
+}
+
+// 🔹 Submit extra info
+function submitExtraInfo(){
+    const fullName = document.getElementById("fullName").value;
+    const phone = document.getElementById("phone").value;
+    if(!fullName || !phone) return alert("Fill all fields");
+
+    registerInFirestore({ fullName, phone });
+}
+
+// 🔹 Register in Firestore REST API
+async function registerInFirestore(extraInfo){
+    const collection = selectedRole==="Admin"?"admin":"users";
+    const docId = googleEmail.replace(/[@.]/g,'_'); // make safe doc id
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}?documentId=${docId}&key=${apiKey}`;
+
+    // Prepare body in Firestore format
+    const body = {
+        fields: {
+            role: { stringValue: selectedRole },
+            email: { stringValue: googleEmail },
+            ...Object.fromEntries(Object.entries(extraInfo).map(([k,v])=>[k,{stringValue:v}]))
+        }
+    };
+
+    try{
+        await fetch(url, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+        if(selectedRole==="Admin") window.location.href="admin.html";
+        else window.location.href="user.html";
+    } catch(err){
+        alert("Error registering user: "+err);
+    }
+}
+</script>
+
+</body>
+</html>
