@@ -63,15 +63,50 @@ function parseJwt (token) {
 }
 
 // 🔹 Google login callback
-function handleGoogleLogin(response){
+// function handleGoogleLogin(response){
+//     idToken = response.credential;
+//     const payload = parseJwt(idToken);
+//     googleEmail = payload.email;
+
+//     // Show role selection for first time
+//     document.getElementById("loginCard").style.display="none";
+//     document.getElementById("roleForm").style.display="block";
+// }
+async function handleGoogleLogin(response){
     idToken = response.credential;
     const payload = parseJwt(idToken);
     googleEmail = payload.email;
 
-    // Show role selection for first time
-    document.getElementById("loginCard").style.display="none";
-    document.getElementById("roleForm").style.display="block";
+    const docId = googleEmail.replace(/[@.]/g,'_');
+
+    // 🔹 Check Firestore if user/admin already exists
+    try {
+        const adminUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/admin/${docId}?key=${apiKey}`;
+        const userUrl  = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`;
+
+        let res = await fetch(adminUrl);
+        if(res.ok){
+            // Admin exists → redirect
+            window.location.href = "admin.html";
+            return;
+        }
+
+        res = await fetch(userUrl);
+        if(res.ok){
+            // User exists → redirect
+            window.location.href = "user.html";
+            return;
+        }
+
+        // If neither exists → show role selection
+        document.getElementById("loginCard").style.display="none";
+        document.getElementById("roleForm").style.display="block";
+
+    } catch(err){
+        alert("Error checking user role: "+err);
+    }
 }
+
 
 // 🔹 Submit role
 function submitRole(){
@@ -122,5 +157,210 @@ async function registerInFirestore(extraInfo){
 }
 </script>
 
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlippedCart - Google Auth with Role</title>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ✅ Your Firebase Config
+    // const firebaseConfig = {
+    //   apiKey: "YOUR_API_KEY",
+    //   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    //   projectId: "YOUR_PROJECT_ID",
+    //   storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    //   messagingSenderId: "YOUR_SENDER_ID",
+    //   appId: "YOUR_APP_ID"
+    // };
+    const firebaseConfig = {
+    apiKey: "AIzaSyAR10NJqR8wUDIimsxHMsW307P_vdbO_dE",
+    authDomain: "flippedcart8751.firebaseapp.com",
+    projectId: "flippedcart8751",
+    storageBucket: "flippedcart8751.firebasestorage.app",
+    messagingSenderId: "336616953225",
+    appId: "1:336616953225:web:cf22d24e57a52414a2fd58",
+    measurementId: "G-V4QWW50DQX"
+  };
+
+    // ✅ Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    // Wait for DOM to load
+    document.addEventListener("DOMContentLoaded", () => {
+      const registerBtn = document.getElementById("registerBtn");
+      const loginBtn = document.getElementById("loginBtn");
+      const roleBox = document.getElementById("roleBox");
+      const roleSelect = document.getElementById("roleSelect");
+      const confirmRoleBtn = document.getElementById("confirmRoleBtn");
+
+      let currentUser = null; // temp holder for user during registration
+
+      // 🆕 Register with Google
+      registerBtn.onclick = async () => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+
+          // Check if already registered
+          const userRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userRef);
+
+          if (userDoc.exists()) {
+            alert("You are already registered! Please use Login instead.");
+            await signOut(auth);
+            return;
+          }
+
+          // Show role selection popup
+          currentUser = user;
+          roleBox.style.display = "block";
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+
+      // ✅ Confirm role after registration
+      confirmRoleBtn.onclick = async () => {
+        const selectedRole = roleSelect.value;
+        if (!selectedRole) return alert("Please choose a role");
+
+        try {
+          await setDoc(doc(db, "users", currentUser.uid), {
+            email: currentUser.email,
+            role: selectedRole
+          });
+
+          alert("Registered successfully!");
+          roleBox.style.display = "none";
+          await signOut(auth);
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+
+      // 🔐 Login with Google
+      loginBtn.onclick = async () => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+
+          // Fetch role
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const role = userDoc.data().role;
+
+            if (role === "Admin") {
+              window.location.href = "admin.html";
+            } else if (role === "Customer") {
+              window.location.href = "customer.html";
+            } else {
+              alert("Role not found! Contact admin.");
+              await signOut(auth);
+            }
+          } else {
+            alert("User not registered! Please register first.");
+            await signOut(auth);
+          }
+        } catch (err) {
+          alert(err.message);
+        }
+      };
+    });
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      background: #f7f8fc;
+    }
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 320px;
+    }
+    button {
+      width: 90%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #3367D6; }
+    #roleBox {
+      display: none;
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    select {
+      width: 90%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>FlippedCart</h2>
+    <button id="registerBtn">Register with Google</button>
+    <button id="loginBtn">Login with Google</button>
+  </div>
+
+  <!-- Role Selection Popup -->
+  <div id="roleBox">
+    <h3>Select Your Role</h3>
+    <select id="roleSelect">
+      <option value="">--Choose--</option>
+      <option value="Admin">Admin</option>
+      <option value="Customer">Customer</option>
+    </select>
+    <br>
+    <button id="confirmRoleBtn">Confirm</button>
+  </div>
 </body>
 </html>
