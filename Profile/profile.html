@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="profile.css">
+<title>FlippedCart - Profile</title>
+</head>
+<body>
+
+<div class="profile-container">
+    <div class="top-nav">
+  <button onclick="window.location.href='../User/user.html'">Move to Home</button>
+</div>
+  <h2>User Profile</h2>
+  <div id="profileFields"></div>
+
+  <div id="addFieldSection">
+    <div class="extra-field">
+      <input type="text" id="newFieldName" placeholder="Field name (e.g. phone)">
+      <input type="text" id="newFieldValue" placeholder="Value (e.g. 9876543210)">
+    </div>
+    <button onclick="addField()">Add Field</button>
+  </div>
+
+  <button id="updateBtn" onclick="enableEditing()">Update Info</button>
+  <button id="saveBtn" style="display:none;" onclick="saveChanges()">Save Changes</button>
+</div>
+
+<script src="profile.js"></script>
+
+</body>
+</html>

@@ -254,7 +254,7 @@ document.getElementById('prevBtn').addEventListener('click', () => {
 // Logout & navigation
 document.getElementById('logoutBtn').addEventListener('click', () => {
   sessionStorage.clear();
-  window.location.href = "login.html";
+  window.location.href = "../index.html";
 });
 document.getElementById('wishlistLink').addEventListener('click', () => {
   window.location.href = "../Wishlist/wishlist.html";
