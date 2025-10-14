@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="payment.css">
+<title>Payment - FlippedCart</title>
+</head>
+<body>
+
+<h2>Payment & Address</h2>
+
+<label for="paymentMode">Select Payment Mode:</label>
+<select id="paymentMode">
+  <option value="Credit Card">Credit Card</option>
+  <option value="UPI">UPI</option>
+  <option value="Cash on Delivery">Cash on Delivery</option>
+</select>
+
+<label for="address">Delivery Address:</label>
+<textarea id="address" rows="3" placeholder="Enter your address"></textarea>
+
+<button id="placeOrderBtn">Place Order</button>
+
+<script src="payment.js"></script>
+
+</body>
+</html>

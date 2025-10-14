@@ -1,0 +1,6 @@
+body { font-family: Arial; background:#f7f7f7; padding:20px; }
+h2 { text-align:center; }
+label { display:block; margin-top:10px; }
+select, input, textarea, button { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc; }
+button { background:#007bff; color:white; border:none; cursor:pointer; margin-top:15px; }
+button:hover { background:#0056b3; }
