@@ -110,7 +110,8 @@ function renderProducts(products) {
       const id = productCard.dataset.id;
       const name = productCard.dataset.name;
       const price = productCard.dataset.price;
-    const image = productCard.querySelector('img').src;
+      const image = productCard.querySelector('img').src;
+      const quantity = document.getElementById(`qty-${id}`).value;
       const userId = sessionStorage.getItem("googleEmail") || "guest@example.com";
 
       if (btn.classList.contains('added')) {
@@ -129,7 +130,7 @@ function renderProducts(products) {
         icon.classList.add('fa-check');
         icon.style.color = '#00c853';
 
-        await addToWishlist(id, name, price,image);
+        await addToWishlist(id, name, price,image,quantity);
       }
     });
   });
@@ -186,7 +187,7 @@ async function addToCart(id, name, price) {
 }
 
 // Add to Wishlist
-async function addToWishlist(id, name, price,image) {
+async function addToWishlist(id, name, price,image,quantity) {
   const userId = sessionStorage.getItem("googleEmail") || "guest@example.com";
   const data = {
     fields: {
@@ -194,6 +195,7 @@ async function addToWishlist(id, name, price,image) {
       name: { stringValue: name },
       price: { stringValue: price },
       imgurl:{stringValue:image},
+      quantity: { integerValue: quantity },
       user: { stringValue: userId }
     }
   };
