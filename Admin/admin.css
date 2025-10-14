@@ -105,3 +105,94 @@ button:hover {
   background-color: #d9534f;
   color: #fff;
 }
+  #adminInfo 
+  { 
+    display:flex; 
+    justify-content: flex-end;
+    align-items:center; 
+    gap:10px; 
+    margin-bottom:20px;
+   }
+  #adminEmail 
+  { 
+    font-weight:bold; 
+  }
+  #navMenu 
+  { 
+    text-align:center; margin:20px 0; 
+  }
+  .section 
+  { 
+    margin:20px; 
+  }
+  #messageContainer 
+  { 
+    text-align:center; 
+    border-radius:5px; 
+    margin-bottom:20px; 
+    padding:10px; 
+    display:none; 
+  }
+  .card 
+  { 
+    margin:10px 0; 
+    padding:10px; 
+    border:1px solid #ccc; 
+    border-radius:5px; 
+    position:relative; 
+  }
+  .card img 
+  { 
+    max-width:100px; 
+    display:block; 
+  }
+  .action-buttons 
+  { 
+    margin-top:10px; 
+    display:flex; 
+    gap:10px; 
+  }
+  .tab-buttons 
+  { 
+    text-align:center;
+     margin:20px 0;
+  }
+  .tab-buttons button 
+  { 
+    margin:0 10px; 
+  }
+  #overlay 
+  { 
+    display:none; 
+    position:fixed; 
+    top:0; 
+    left:0; 
+    width:100%;
+    height:100%; 
+    background: rgba(0,0,0,0.6);
+    justify-content:center; 
+    align-items:center; z-index:1000; 
+  }
+  #overlayContent 
+  { 
+    background:white; 
+    padding:20px; 
+    border-radius:8px; 
+    text-align:center; 
+  }
+  #overlayContent button 
+  { 
+    margin: 0 10px; 
+    padding:5px 15px; 
+  }
+  #searchUsers 
+  { 
+    margin-bottom: 10px; 
+    padding:5px; 
+    width:100%; 
+  }
+  #filterCategory 
+  { 
+    margin-bottom:10px; 
+    padding:5px; 
+  }
