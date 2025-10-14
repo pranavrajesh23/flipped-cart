@@ -196,5 +196,13 @@ function renderProducts(products) {
     window.location.href = "login.html";
   });
 
+   document.getElementById('wishlistLink').addEventListener('click', () => {
+    window.location.href = "../Wishlist/wishlist.html";
+  });
+
+   document.getElementById('cartLink').addEventListener('click', () => {
+    window.location.href = "../Cart/cart.html";
+  });
+
   loadProducts();
   loadCategories();
