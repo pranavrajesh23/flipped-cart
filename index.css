@@ -1,4 +1,4 @@
-body 
+/* body 
 {   font-family: Arial; 
     display:flex; 
     justify-content:center; 
@@ -38,4 +38,88 @@ button
 #roleForm,#extraForm 
 { 
     display:none; 
+} */
+ /* -------- General Layout -------- */
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  background: #f7f8fc;
+  margin: 0;
+}
+
+/* -------- Card Styling -------- */
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 340px;
+  transition: all 0.3s ease;
+}
+
+.card h2, .card h3 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* -------- Input & Select Fields -------- */
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: #4285F4;
+}
+
+/* -------- Buttons -------- */
+button {
+  width: 95%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #4285F4;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #3367d6;
+}
+
+/* -------- Google Sign-In Area -------- */
+.g_id_signin {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+/* -------- Hide extra form initially -------- */
+#extraForm {
+  display: none;
+}
+
+/* -------- Small screen support -------- */
+@media (max-width: 400px) {
+  .card {
+    width: 90%;
+    padding: 20px;
+  }
+
+  button {
+    font-size: 14px;
+  }
 }

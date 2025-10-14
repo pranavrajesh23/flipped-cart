@@ -8,7 +8,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-<div class="card" id="loginCard">
+<!-- <div class="card" id="loginCard">
   <h2>FlippedCart Login</h2>
   <div id="g_id_onload"
        data-client_id="336616953225-lf8gemh128jsd4rmddjc3d2oc4g3bkog.apps.googleusercontent.com"
@@ -33,7 +33,28 @@
   <input type="text" id="fullName" placeholder="Full Name"><br>
   <input type="text" id="phone" placeholder="Phone"><br>
   <button onclick="submitExtraInfo()">Submit</button>
-</div>
+</div> -->
+<body>
+  <div class="card" id="loginCard">
+    <h2>FlippedCart Login</h2>
+    <div id="g_id_onload"
+         data-client_id="336616953225-lf8gemh128jsd4rmddjc3d2oc4g3bkog.apps.googleusercontent.com"
+         data-context="signup"
+         data-ux_mode="popup"
+         data-callback="handleGoogleLogin">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+  </div>
+
+  <div class="card" id="extraForm" style="display:none;">
+    <h3>Enter User Info</h3>
+    <input type="text" id="fullName" placeholder="Full Name"><br>
+    <input type="text" id="phone" placeholder="Phone"><br>
+    <button onclick="submitExtraInfo()">Submit</button>
+  </div>
+
+  <script src="index.js"></script>
+</body>
 <script src="index.js"></script>
 </body>
 </html>

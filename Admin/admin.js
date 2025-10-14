@@ -45,7 +45,7 @@ overlayNo.onclick = ()=>{ overlay.style.display='none'; if(deleteCallback) delet
 // Verify admin
 async function verifyAdmin(){
   const email = sessionStorage.getItem("googleEmail");
-  if(!email){ window.location.href="index.html"; return; }
+  if(!email){ window.location.href="../index.html"; return; }
   adminEmail = email;
   document.getElementById("adminEmail").innerText = adminEmail;
   document.getElementById("profileEmail").innerText = adminEmail;
