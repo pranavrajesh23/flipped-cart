@@ -43,20 +43,23 @@ button
 body {
   font-family: Arial, sans-serif;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: left;
   flex-direction: column;
   height: 100vh;
   background: #f7f8fc;
   margin: 0;
+  background-image: url('bg1.png');
+  background-size: cover;
+
 }
 
 /* -------- Card Styling -------- */
 .card {
-  background: white;
+  background:transparent;
   padding: 30px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
   text-align: center;
   width: 340px;
   transition: all 0.3s ease;
@@ -105,6 +108,7 @@ button:hover {
   display: flex;
   justify-content: center;
   margin-top: 15px;
+  background: transparent;
 }
 
 /* -------- Hide extra form initially -------- */
