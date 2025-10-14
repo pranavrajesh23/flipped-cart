@@ -53,3 +53,24 @@
   button:hover {
     background: #0056b3;
   }
+
+   .top-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.top-nav button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+.top-nav button:hover {
+  transform: scale(1.05);
+}
