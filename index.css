@@ -1,0 +1,41 @@
+body 
+{   font-family: Arial; 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    flex-direction:column; 
+    height:100vh; 
+    background:#f7f8fc;
+}
+.card 
+{ 
+    background:white; 
+    padding:25px; 
+    border-radius:15px; 
+    box-shadow:0 4px 10px rgba(0,0,0,0.1); 
+    text-align:center; 
+    width:350px; 
+    margin-top:10px;
+}
+select,input 
+{ 
+    width:90%; 
+    padding:8px; 
+    margin:6px 0; 
+    border-radius:5px; 
+}
+button 
+{ 
+    width:95%; 
+    padding:10px; 
+    margin-top:10px; 
+    border:none; 
+    border-radius:8px; 
+    background:#4285F4; 
+    color:white; 
+    cursor:pointer; 
+}
+#roleForm,#extraForm 
+{ 
+    display:none; 
+}
