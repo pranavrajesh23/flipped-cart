@@ -3,115 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="admin.css">
 <title>FlippedCart - Admin Dashboard</title>
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f7f8fc;
-  padding: 20px;
-}
-.container {
-  max-width: 1000px;
-  margin: auto;
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-h1 {
-  text-align: center;
-  color: #333;
-}
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-input, select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  flex: 1;
-  min-width: 150px;
-}
-button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  background: #4285F4;
-  color: white;
-  cursor: pointer;
-}
-button:hover {
-  opacity: 0.9;
-}
-#productContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
-}
-.card {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
-  text-align: center;
-  transition: 0.2s;
-}
-.card:hover {
-  transform: scale(1.02);
-}
-.card img {
-  width: 100%;
-  height: 160px;
-  /* object-fit: cover; */
-  object-fit: contain;
-  background: #f0f0f0;
-}
-.card-content {
-  padding: 10px;
-}
-.card h3 {
-  margin: 5px 0;
-  color: #333;
-}
-.card p {
-  font-size: 14px;
-  color: #555;
-}
-.card .price {
-  color: green;
-  font-weight: bold;
-}
-.card .stock {
-  color: #777;
-  font-size: 13px;
-}
-.card .category {
-  font-size: 12px;
-  color: #999;
-}
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-}
-.action-buttons button {
-  border: none;
-  border-radius: 5px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-.edit-btn {
-  background-color: #ffb300;
-  color: #fff;
-}
-.delete-btn {
-  background-color: #d9534f;
-  color: #fff;
-}
+  /* Temporary inline style for layout tweak */
+  #adminEmail { position: absolute; top: 10px; right: 20px; font-weight: bold; }
+  #navMenu { text-align: center; margin: 80px 0 20px 0; }
+  .section { margin: 20px; }
+  #messageContainer { text-align: center; border-radius: 5px; }
+  .card { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+  .card img { max-width: 100px; display: block; }
+  .action-buttons { margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -125,6 +27,8 @@ button:hover {
     <button onclick="showSection('user')">User CRUD</button>
   </div>
 
+  <div id="messageContainer" style="display:none;"></div>
+
   <div id="profileSection" class="section">
     <h2>Profile</h2>
     <p>Email: <span id="profileEmail"></span></p>
@@ -133,7 +37,13 @@ button:hover {
   <div id="productSection" class="section" style="display:none;">
     <h2>Product CRUD</h2>
     <form id="productForm">
-      <!-- Product form fields here -->
+      <input type="hidden" id="productId">
+      <input type="text" id="name" placeholder="Product Name" required>
+      <input type="text" id="imgurl" placeholder="Image URL" required>
+      <input type="text" id="description" placeholder="Description" required>
+      <input type="number" id="quantity" placeholder="Quantity" required>
+      <input type="number" id="price" placeholder="Price" required>
+      <input type="text" id="category" placeholder="Category" required>
       <button type="submit">Add / Update Product</button>
     </form>
     <div id="productContainer"></div>
@@ -142,7 +52,10 @@ button:hover {
   <div id="userSection" class="section" style="display:none;">
     <h2>User CRUD</h2>
     <form id="userForm">
-      <!-- User form fields here -->
+      <input type="hidden" id="userId">
+      <input type="text" id="name" placeholder="Name" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="text" id="role" placeholder="Role" required>
       <button type="submit">Add / Update User</button>
     </form>
     <div id="userContainer"></div>
@@ -150,316 +63,215 @@ button:hover {
 </div>
 
 <script>
-  // Firebase configuration
-  const projectId = "flippedcart8751";
-  const apiKey = "AIzaSyAR10NJqR8wUDIimsxHMsW307P_vdbO_dE";
-  let adminEmail = null;
-
-  // Verify if the user is an admin
-  async function verifyAdmin() {
-    const email = sessionStorage.getItem("googleEmail");
-    if (!email) {
-      alert("Unauthorized access!");
-      window.location.href = "index.html";
-      return;
-    }
-    adminEmail = email;
-    document.getElementById("adminEmail").innerText = "Logged in as: " + adminEmail;
-    document.getElementById("profileEmail").innerText = adminEmail;
-
-    const docId = email.replace(/[@.]/g, '_');
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/admin/${docId}?key=${apiKey}`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      alert("You are not an admin!");
-      window.location.href = "index.html";
-    } else {
-      loadProducts();
-      loadUsers();
-    }
-  }
-
-  // Load products from Firestore
-  async function loadProducts() {
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const container = document.getElementById("productContainer");
-    container.innerHTML = "";
-
-    if (!data.documents) return;
-
-    data.documents.forEach(doc => {
-      const f = doc.fields;
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${f.imgurl.stringValue}" alt="">
-        <div class="card-content">
-          <h3>${f.name.stringValue}</h3>
-          <p>${f.description.stringValue}</p>
-          <p class="price">₹${f.price.stringValue}</p>
-          <p class="stock">Stock: ${f.quantity.stringValue}</p>
-          <p class="category">Category: ${f.category.stringValue}</p>
-        </div>
-        <div class="action-buttons">
-          <button class="edit-btn" onclick="editProduct('${doc.name.split('/').pop()}')">✏️ Edit</button>
-          <button class="delete-btn" onclick="deleteProduct('${doc.name.split('/').pop()}')">🗑️ Delete</button>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  // Load users from Firestore
-  async function loadUsers() {
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const container = document.getElementById("userContainer");
-    container.innerHTML = "";
-
-    if (!data.documents) return;
-
-    data.documents.forEach(doc => {
-      const f = doc.fields;
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <h3>${f.name.stringValue}</h3>
-        <p>Email: ${f.email.stringValue}</p>
-        <p>Role: ${f.role.stringValue}</p>
-        <div class="action-buttons">
-          <button class="edit-btn" onclick="editUser('${doc.name.split('/').pop()}')">✏️ Edit</button>
-          <button class="delete-btn" onclick="deleteUser('${doc.name.split('/').pop()}')">🗑️ Delete</button>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  // Show selected section
-  function showSection(section) {
-    document.querySelectorAll('.section').forEach(sec => {
-      sec.style.display = 'none';
-    });
-    document.getElementById(section + 'Section').style.display = 'block';
-  }
-
-  // Edit product
-  async function editProduct(docId) {
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const f = data.fields;
-    document.getElementById("productId").value = f.productId.stringValue;
-    document.getElementById("name").value = f.name.stringValue;
-    document.getElementById("imgurl").value = f.imgurl.stringValue;
-    document.getElementById("description").value = f.description.stringValue;
-    document.getElementById("quantity").value = f.quantity.stringValue;
-    document.getElementById("price").value = f.price.stringValue;
-    document.getElementById("category").value = f.category.stringValue;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // Delete product
-  async function deleteProduct(docId) {
-    if (!confirm("Delete this product?")) return;
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`;
-    await fetch(url, { method: "DELETE" });
-    alert("Product deleted!");
-    loadProducts();
-  }
-
-  // Edit user
-  async function editUser(docId) {
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const f = data.fields;
-    document.getElementById("userId").value = f.userId.stringValue;
-    document.getElementById("name").value = f.name.stringValue;
-    document.getElementById("email").value = f.email.stringValue;
-    document.getElementById("role").value = f.role.stringValue;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // Delete user
-  async function deleteUser(docId) {
-    if (!confirm("Delete this user?")) return;
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`;
-    await fetch(url, { method: "DELETE" });
-    alert("User deleted!");
-    loadUsers();
-  }
-
-  // Initialize
-  verifyAdmin();
-</script>
-
-</body>
-</html>
-
-<!-- 
-<div class="container">
-  <h1>🛍️ FlippedCart Admin Panel</h1>
-  <h3 id="adminEmail"></h3>
-
-  <form id="productForm">
-    <input type="hidden" id="productId">
-    <input type="text" id="productId" placeholder="Product ID" required>
-    <input type="text" id="name" placeholder="Product Name" required>
-    <input type="text" id="imgurl" placeholder="Image URL" required>
-    <input type="text" id="description" placeholder="Description" required>
-    <input type="number" id="quantity" placeholder="Quantity" required>
-    <input type="number" id="price" placeholder="Price" required>
-    <select id="category" required>
-      <option value="">Category</option>
-      <option>Electronics</option>
-      <option>Fashion</option>
-      <option>Home</option>
-      <option>Grocery</option>
-      <option>Sports</option>
-    </select>
-    <button type="submit">Add / Update</button>
-  </form>
-
-  🔹 Product Display Section
-  <div id="productContainer"></div>
-</div>
-
-<script>
-// 🔹 Firebase Config
-const projectId = "flippedcart8751"; // your firebase project id
-const apiKey = "AIzaSyAR10NJqR8wUDIimsxHMsW307P_vdbO_dE"; // your firebase web api key
-
+const projectId = "flippedcart8751";
+const apiKey = "AIzaSyAR10NJqR8wUDIimsxHMsW307P_vdbO_dE";
 let adminEmail = null;
 
-// ✅ Check if user is valid admin before allowing CRUD
-async function verifyAdmin(){
-    const email = sessionStorage.getItem("googleEmail");
-    if(!email){
-        alert("Unauthorized access!");
-        window.location.href="index.html";
-        return;
-    }
-    adminEmail = email;
-    document.getElementById("adminEmail").innerText = "Logged in as: " + adminEmail;
-
-    const docId = email.replace(/[@.]/g,'_');
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/admin/${docId}?key=${apiKey}`;
-    const res = await fetch(url);
-    if(!res.ok){
-        alert("You are not an admin!");
-        window.location.href="index.html";
-    } else {
-        loadProducts();
-    }
+const messageContainer = document.getElementById('messageContainer');
+function showMessage(msg, type='info') {
+  messageContainer.innerText = msg;
+  messageContainer.style.display = 'block';
+  messageContainer.style.color = type === 'error' ? 'red' : 'green';
+  setTimeout(() => { messageContainer.style.display = 'none'; }, 3000);
 }
 
-// 🔹 Load Products (Card View)
-async function loadProducts(){
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const container = document.getElementById("productContainer");
-    container.innerHTML = "";
+// Verify admin
+async function verifyAdmin() {
+  const email = sessionStorage.getItem("googleEmail");
+  if (!email) { window.location.href = "index.html"; return; }
+  adminEmail = email;
+  document.getElementById("adminEmail").innerText = adminEmail;
+  document.getElementById("profileEmail").innerText = adminEmail;
 
-    if(!data.documents) return;
-
-    data.documents.forEach(doc => {
-        const f = doc.fields;
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <img src="${f.imgurl.stringValue}" alt="">
-          <div class="card-content">
-            <h3>${f.name.stringValue}</h3>
-            <p>${f.description.stringValue}</p>
-            <p class="price">₹${f.price.stringValue}</p>
-            <p class="stock">Stock: ${f.quantity.stringValue}</p>
-            <p class="category">Category: ${f.category.stringValue}</p>
-          </div>
-          <div class="action-buttons">
-            <button class="edit-btn" onclick="editProduct('${doc.name.split('/').pop()}')">✏️ Edit</button>
-            <button class="delete-btn" onclick="deleteProduct('${doc.name.split('/').pop()}')">🗑️ Delete</button>
-          </div>
-        `;
-        container.appendChild(card);
-    });
+  const docId = email.replace(/[@.]/g, '_');
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/admin/${docId}?key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) { window.location.href = "index.html"; } 
+  else { loadProducts(); loadUsers(); }
 }
 
-async function getNextProductId() {
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const count = data.documents ? data.documents.length : 0;
-    return `P${(count + 1).toString().padStart(3, '0')}`;
+// Load products
+async function loadProducts() {
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products?key=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const container = document.getElementById("productContainer");
+  container.innerHTML = "";
+  if (!data.documents) return;
+
+  data.documents.forEach(doc => {
+    const f = doc.fields;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${f.imgurl.stringValue}" alt="">
+      <div class="card-content">
+        <h3>${f.name.stringValue}</h3>
+        <p>${f.description.stringValue}</p>
+        <p class="price">₹${f.price.stringValue}</p>
+        <p class="stock">Stock: ${f.quantity.stringValue}</p>
+        <p class="category">Category: ${f.category.stringValue}</p>
+      </div>
+      <div class="action-buttons">
+        <button class="edit-btn" onclick="editProduct('${doc.name.split('/').pop()}')">✏️ Edit</button>
+        <button class="delete-btn" onclick="deleteProduct('${doc.name.split('/').pop()}')">🗑️ Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
 }
 
+// Load users
+async function loadUsers() {
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users?key=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const container = document.getElementById("userContainer");
+  container.innerHTML = "";
+  if (!data.documents) return;
 
-// 🔹 Add / Update Product
-document.getElementById("productForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  data.documents.forEach(doc => {
+    const f = doc.fields;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${f.name.stringValue}</h3>
+      <p>Email: ${f.email.stringValue}</p>
+      <p>Role: ${f.role.stringValue}</p>
+      <div class="action-buttons">
+        <button class="edit-btn" onclick="editUser('${doc.name.split('/').pop()}')">✏️ Edit</button>
+        <button class="delete-btn" onclick="deleteUser('${doc.name.split('/').pop()}')">🗑️ Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
 
-    // Generate ID only when adding a new product
-    let productId = document.getElementById("productId").value.trim();
-    if (!productId) {
-        productId = await getNextProductId();
-    }
+// Show section
+function showSection(section) {
+  document.querySelectorAll('.section').forEach(sec => { sec.style.display = 'none'; });
+  document.getElementById(section + 'Section').style.display = 'block';
+}
 
-    const product = {
-        productId: productId,
-        name: document.getElementById("name").value,
-        imgurl: document.getElementById("imgurl").value,
-        description: document.getElementById("description").value,
-        quantity: document.getElementById("quantity").value,
-        price: document.getElementById("price").value,
-        category: document.getElementById("category").value
-    };
+// Edit product
+async function editProduct(docId) {
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const f = data.fields;
+  document.getElementById("productId").value = f.productId.stringValue;
+  document.getElementById("name").value = f.name.stringValue;
+  document.getElementById("imgurl").value = f.imgurl.stringValue;
+  document.getElementById("description").value = f.description.stringValue;
+  document.getElementById("quantity").value = f.quantity.stringValue;
+  document.getElementById("price").value = f.price.stringValue;
+  document.getElementById("category").value = f.category.stringValue;
+  showMessage("Editing product");
+}
 
-    const docId = productId.replace(/[@.]/g, '_');
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`;
-
-    const body = {
-        fields: Object.fromEntries(Object.entries(product).map(([k, v]) => [k, { stringValue: v }]))
-    };
-
-    await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    alert("✅ Product added/updated successfully!");
-    e.target.reset();
+// Delete product
+async function deleteProduct(docId) {
+  const div = document.createElement('div');
+  div.innerHTML = `Delete this product? <button id="yes">Yes</button> <button id="no">No</button>`;
+  messageContainer.innerHTML = '';
+  messageContainer.appendChild(div);
+  messageContainer.style.display = 'block';
+  document.getElementById('yes').onclick = async () => {
+    await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`, { method:'DELETE' });
+    messageContainer.style.display = 'none';
     loadProducts();
-});
-
-
-// 🔹 Edit Product
-async function editProduct(docId){
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const f = data.fields;
-    document.getElementById("productId").value = f.productId.stringValue;
-    document.getElementById("name").value = f.name.stringValue;
-    document.getElementById("imgurl").value = f.imgurl.stringValue;
-    document.getElementById("description").value = f.description.stringValue;
-    document.getElementById("quantity").value = f.quantity.stringValue;
-    document.getElementById("price").value = f.price.stringValue;
-    document.getElementById("category").value = f.category.stringValue;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showMessage("Product deleted");
+  };
+  document.getElementById('no').onclick = () => { messageContainer.style.display = 'none'; };
 }
 
-// 🔹 Delete Product
-async function deleteProduct(docId){
-    if(!confirm("Delete this product?")) return;
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`;
-    await fetch(url, { method:"DELETE" });
-    alert("Product deleted!");
-    loadProducts();
+// Edit user
+async function editUser(docId) {
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const f = data.fields;
+  document.getElementById("userId").value = f.userId.stringValue;
+  document.getElementById("name").value = f.name.stringValue;
+  document.getElementById("email").value = f.email.stringValue;
+  document.getElementById("role").value = f.role.stringValue;
+  showMessage("Editing user");
 }
 
-// Initialize
+// Delete user
+async function deleteUser(docId) {
+  const div = document.createElement('div');
+  div.innerHTML = `Delete this user? <button id="yes">Yes</button> <button id="no">No</button>`;
+  messageContainer.innerHTML = '';
+  messageContainer.appendChild(div);
+  messageContainer.style.display = 'block';
+  document.getElementById('yes').onclick = async () => {
+    await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`, { method:'DELETE' });
+    messageContainer.style.display = 'none';
+    loadUsers();
+    showMessage("User deleted");
+  };
+  document.getElementById('no').onclick = () => { messageContainer.style.display = 'none'; };
+}
+
+// Form submit handling
+document.getElementById('productForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const productId = document.getElementById('productId').value || Date.now().toString();
+  const name = document.getElementById('name').value;
+  const imgurl = document.getElementById('imgurl').value;
+  const description = document.getElementById('description').value;
+  const quantity = document.getElementById('quantity').value;
+  const price = document.getElementById('price').value;
+  const category = document.getElementById('category').value;
+
+  const docData = {
+    fields: {
+      productId: { stringValue: productId },
+      name: { stringValue: name },
+      imgurl: { stringValue: imgurl },
+      description: { stringValue: description },
+      quantity: { stringValue: quantity },
+      price: { stringValue: price },
+      category: { stringValue: category }
+    }
+  };
+
+  await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${productId}?key=${apiKey}`, {
+    method:'PATCH',
+    body: JSON.stringify(docData)
+  });
+  showMessage("Product added/updated");
+  loadProducts();
+  e.target.reset();
+};
+
+document.getElementById('userForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const userId = document.getElementById('userId').value || Date.now().toString();
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const role = document.getElementById('role').value;
+
+  const docData = {
+    fields: {
+      userId: { stringValue: userId },
+      name: { stringValue: name },
+      email: { stringValue: email },
+      role: { stringValue: role }
+    }
+  };
+
+  await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}?key=${apiKey}`, {
+    method:'PATCH',
+    body: JSON.stringify(docData)
+  });
+  showMessage("User added/updated");
+  loadUsers();
+  e.target.reset();
+};
+
 verifyAdmin();
 </script>
-
 </body>
-</html> -->
+</html>
