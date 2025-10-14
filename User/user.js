@@ -250,7 +250,7 @@ document.getElementById('prevBtn').addEventListener('click', () => {
     prevPageTokens = [];
   }
 });
-
+ 
 // Logout & navigation
 document.getElementById('logoutBtn').addEventListener('click', () => {
   sessionStorage.clear();
@@ -265,7 +265,9 @@ document.getElementById('cartLink').addEventListener('click', () => {
 document.getElementById('ordersLink').addEventListener('click', () => {
   window.location.href = "../Orders/orders.html";
 });
-
+document.getElementById('profileLink').addEventListener('click', () => {
+  window.location.href = "../Profile/profile.html";
+});
 
 async function loadUserWishlist() {
   const userId = sessionStorage.getItem("googleEmail") || "guest@example.com";
