@@ -30,7 +30,7 @@ function showTab(tab){
 // Sign out
 function signOut(){
   sessionStorage.clear();
-  window.location.href="../index.html";
+  window.location.href="index.html";
 }
 
 // Overlay
@@ -45,11 +45,10 @@ overlayNo.onclick = ()=>{ overlay.style.display='none'; if(deleteCallback) delet
 // Verify admin
 async function verifyAdmin(){
   const email = sessionStorage.getItem("googleEmail");
-  if(!email){ window.location.href="../index.html"; return; }
+  if(!email){ window.location.href="index.html"; return; }
   adminEmail = email;
   document.getElementById("adminEmail").innerText = adminEmail;
   document.getElementById("profileEmail").innerText = adminEmail;
-
   const docId = email.replace(/[@.]/g,'_');
   const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/admin/${docId}?key=${apiKey}`;
   const res = await fetch(url);
@@ -57,20 +56,46 @@ async function verifyAdmin(){
   else{ loadProducts(); loadUsers(); }
 }
 
-// Load products with category filter
+// --- Product Pagination ---
+let allProducts = [];
+let currentPage = 1;
+const productsPerPage = 4;
+
+// Load products
 async function loadProducts(){
   const filter = document.getElementById('filterCategory').value;
   const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products?key=${apiKey}`);
   const data = await res.json();
-  const container = document.getElementById("productContainer"); container.innerHTML='';
+  const container = document.getElementById("productContainer");
+  container.innerHTML='';
   const catSelect = document.getElementById('filterCategory');
   catSelect.innerHTML='<option value="">All Categories</option>';
   if(!data.documents) return;
   const categories = new Set();
-  data.documents.forEach(doc=>{
-    const f=doc.fields;
+  allProducts = data.documents.filter(doc=>{
+    const f = doc.fields;
     categories.add(f.category.stringValue);
-    if(filter && f.category.stringValue!==filter) return;
+    if(filter && f.category.stringValue!==filter) return false;
+    return true;
+  });
+  categories.forEach(c=>{
+    const option = document.createElement('option');
+    option.value=c; option.innerText=c;
+    catSelect.appendChild(option);
+  });
+  currentPage = 1;
+  renderProductPage();
+}
+
+function renderProductPage(){
+  const container = document.getElementById("productContainer");
+  container.innerHTML='';
+  const start = (currentPage-1)*productsPerPage;
+  const end = start + productsPerPage;
+  const pageProducts = allProducts.slice(start,end);
+
+  pageProducts.forEach(doc=>{
+    const f = doc.fields;
     const card = document.createElement("div"); card.className="card";
     card.innerHTML=`
       <img src="${f.imgurl.stringValue}" alt="">
@@ -88,11 +113,31 @@ async function loadProducts(){
     `;
     container.appendChild(card);
   });
-  categories.forEach(c=>{
-    const option = document.createElement('option');
-    option.value=c; option.innerText=c;
-    catSelect.appendChild(option);
-  });
+
+  renderPaginationButtons();
+}
+
+function renderPaginationButtons(){
+  const container = document.getElementById("productContainer");
+  const totalPages = Math.ceil(allProducts.length / productsPerPage);
+  const paginationDiv = document.createElement('div');
+  paginationDiv.style.textAlign='center'; paginationDiv.style.marginTop='10px';
+
+  if(currentPage>1){
+    const prevBtn = document.createElement('button');
+    prevBtn.innerText='Prev';
+    prevBtn.onclick=()=>{ currentPage--; renderProductPage(); };
+    paginationDiv.appendChild(prevBtn);
+  }
+
+  if(currentPage<totalPages){
+    const nextBtn = document.createElement('button');
+    nextBtn.innerText='Next';
+    nextBtn.onclick=()=>{ currentPage++; renderProductPage(); };
+    paginationDiv.appendChild(nextBtn);
+  }
+
+  container.appendChild(paginationDiv);
 }
 
 // Load users with search
@@ -100,10 +145,11 @@ async function loadUsers(){
   const search = document.getElementById('searchUsers').value.toLowerCase();
   const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users?key=${apiKey}`);
   const data = await res.json();
-  const container = document.getElementById("userContainer"); container.innerHTML='';
+  const container = document.getElementById("userContainer");
+  container.innerHTML='';
   if(!data.documents) return;
   data.documents.forEach(doc=>{
-    const f=doc.fields;
+    const f = doc.fields;
     if(search && !(f.email.stringValue.toLowerCase().includes(search) || f.fullName.stringValue.toLowerCase().includes(search))) return;
     const card = document.createElement("div"); card.className="card";
     card.innerHTML=`
@@ -120,24 +166,26 @@ async function loadUsers(){
   });
 }
 
-// Edit & delete
+// Edit / Delete
 async function editProduct(docId){
   const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`);
   const f = (await res.json()).fields;
-  document.getElementById("productId").value=docId;
-  document.getElementById("name").value=f.name.stringValue;
-  document.getElementById("imgurl").value=f.imgurl.stringValue;
-  document.getElementById("description").value=f.description.stringValue;
-  document.getElementById("quantity").value=f.quantity.stringValue;
-  document.getElementById("price").value=f.price.stringValue;
-  document.getElementById("category").value=f.category.stringValue;
+  document.getElementById("productId").value = docId;
+  document.getElementById("name").value = f.name.stringValue;
+  document.getElementById("imgurl").value = f.imgurl.stringValue;
+  document.getElementById("description").value = f.description.stringValue;
+  document.getElementById("quantity").value = f.quantity.stringValue;
+  document.getElementById("price").value = f.price.stringValue;
+  document.getElementById("category").value = f.category.stringValue;
   showMessage("Editing product");
 }
+
 function deleteProduct(docId){
   confirmDelete("Delete this product?", async confirmed=>{
     if(confirmed){
       await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/products/${docId}?key=${apiKey}`,{method:'DELETE'});
-      showMessage("Product deleted"); loadProducts();
+      showMessage("Product deleted");
+      loadProducts();
     }
   });
 }
@@ -145,13 +193,14 @@ function deleteProduct(docId){
 async function editUser(docId){
   const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`);
   const f = (await res.json()).fields;
-  document.getElementById("userDocId").value=docId;
-  document.getElementById("fullName").value=f.fullName.stringValue;
-  document.getElementById("email").value=f.email.stringValue;
-  document.getElementById("phone").value=f.phone.stringValue;
-  document.getElementById("role").value=f.role.stringValue;
+  document.getElementById("userDocId").value = docId;
+  document.getElementById("fullName").value = f.fullName.stringValue;
+  document.getElementById("email").value = f.email.stringValue;
+  document.getElementById("phone").value = f.phone.stringValue;
+  document.getElementById("role").value = f.role.stringValue;
   showMessage("Editing user");
 }
+
 function deleteUser(docId){
   confirmDelete("Delete this user?", async confirmed=>{
     if(confirmed){
@@ -161,10 +210,12 @@ function deleteUser(docId){
   });
 }
 
-// Form submissions
+// --- Form submissions ---
+function generateId(){ return Math.random().toString(36).substr(2,9); }
+
 document.getElementById('productForm').onsubmit = async e=>{
   e.preventDefault();
-  const docId = document.getElementById('productId').value || Date.now().toString();
+  const docId = document.getElementById('productId').value || generateId();
   const name = document.getElementById('name').value;
   const imgurl = document.getElementById('imgurl').value;
   const description = document.getElementById('description').value;
@@ -178,7 +229,7 @@ document.getElementById('productForm').onsubmit = async e=>{
 
 document.getElementById('userForm').onsubmit = async e=>{
   e.preventDefault();
-  const docId = document.getElementById('userDocId').value || Date.now().toString();
+  const docId = document.getElementById('userDocId').value || generateId();
   const fullName = document.getElementById('fullName').value;
   const email = document.getElementById('email').value;
   const phone = document.getElementById('phone').value;
@@ -187,4 +238,5 @@ document.getElementById('userForm').onsubmit = async e=>{
   await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${docId}?key=${apiKey}`,{method:'PATCH',body:JSON.stringify(docData)});
   showMessage("User added/updated"); loadUsers(); e.target.reset();
 };
+
 verifyAdmin();

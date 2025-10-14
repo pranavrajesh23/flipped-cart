@@ -3,16 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="admin.css">
 <title>FlippedCart - Admin Dashboard</title>
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <div class="container">
+  <h1>🛍️ FlippedCart Admin Panel</h1>
+
   <div id="adminInfo">
     <span id="adminEmail"></span>
     <button onclick="signOut()">Sign Out</button>
   </div>
-  <h1>🛍️ FlippedCart Admin Panel</h1>
+
   <div id="navMenu">
     <button onclick="showSection('profile')">Profile</button>
     <button onclick="showSection('crud')">CRUD Operations</button>
@@ -31,7 +33,6 @@
       <button onclick="showTab('user')">Users</button>
     </div>
 
-    <!-- Products Tab -->
     <div id="productTab" class="tabContent">
       <h2>Product CRUD</h2>
       <select id="filterCategory" onchange="loadProducts()">
@@ -50,10 +51,9 @@
       <div id="productContainer"></div>
     </div>
 
-    <!-- Users Tab -->
     <div id="userTab" class="tabContent" style="display:none;">
       <h2>User CRUD</h2>
-      <input type="text" id="searchUsers" placeholder="Search by email or name" onkeyup="loadUsers()">
+      <input type="text" id="searchUsers" placeholder="Search users..." oninput="loadUsers()">
       <form id="userForm">
         <input type="hidden" id="userDocId">
         <input type="text" id="fullName" placeholder="Full Name" required>
@@ -67,7 +67,6 @@
   </div>
 </div>
 
-<!-- Full-page overlay for delete confirmation -->
 <div id="overlay">
   <div id="overlayContent">
     <p id="overlayMessage">Delete this item?</p>
@@ -75,6 +74,7 @@
     <button id="overlayNo">No</button>
   </div>
 </div>
+
 <script src="admin.js"></script>
 </body>
 </html>
