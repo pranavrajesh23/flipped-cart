@@ -262,6 +262,10 @@ document.getElementById('wishlistLink').addEventListener('click', () => {
 document.getElementById('cartLink').addEventListener('click', () => {
   window.location.href = "../Cart/cart.html";
 });
+document.getElementById('ordersLink').addEventListener('click', () => {
+  window.location.href = "../Orders/orders.html";
+});
+
 
 async function loadUserWishlist() {
   const userId = sessionStorage.getItem("googleEmail") || "guest@example.com";
