@@ -77,9 +77,10 @@ async function handleGoogleLogin(response){
     const payload = parseJwt(idToken);
     googleEmail = payload.email;
 
+    
     // ✅ store email immediately after login
     sessionStorage.setItem("googleEmail", googleEmail);
-
+    await signInWithFirebase(idToken);
     const docId = googleEmail.replace(/[@.]/g,'_');
 
     try {
@@ -108,6 +109,33 @@ async function handleGoogleLogin(response){
     }
 }
 
+// 🔹 After Google login, add this
+async function signInWithFirebase(idToken) {
+    try {
+        const response = await fetch(
+            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${apiKey}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    postBody: `id_token=${idToken}&providerId=google.com`,
+                    requestUri: window.location.origin,
+                    returnSecureToken: true
+                })
+            }
+        );
+
+        const data = await response.json();
+        if(data.error) throw new Error(data.error.message);
+
+        console.log("Firebase Auth user:", data);
+        // Optional: save Firebase ID token in session
+        sessionStorage.setItem("firebaseIdToken", data.idToken);
+
+    } catch(err) {
+        alert("Firebase Auth error: " + err);
+    }
+}
 
 
 // 🔹 Submit role
