@@ -159,7 +159,7 @@ document.getElementById("deleteBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("historyBtn").addEventListener("click", () => {
-  window.location.href = "../OrderHistory/orderhistory.html";
+  window.location.href = "../Orders/orderhistory.html";
 });
 
 loadProfile();
