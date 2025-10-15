@@ -1,7 +1,29 @@
 const PROJECT_ID = "flippedcart8751";
 const API_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/users`;
 const userEmail = sessionStorage.getItem("googleEmail"); // logged-in user email
-
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.clear();
+  window.location.href = "../index.html";
+});
+document.getElementById('wishlistLink').addEventListener('click', () => {
+  window.location.href = "../Wishlist/wishlist.html";
+});
+document.getElementById('cartLink').addEventListener('click', () => {
+  window.location.href = "../Cart/cart.html";
+});
+document.getElementById('ordersLink').addEventListener('click', () => {
+  window.location.href = "../Orders/orders.html";
+});
+document.getElementById('profileLink').addEventListener('click', () => {
+  window.location.href = "../Profile/profile.html";
+});
+let localPart = userEmail.split('@')[0];
+// Remove the number and anything after it (like 2021eee)
+let namePart = localPart.split(/[0-9]/)[0];
+console.log(namePart);
+// Capitalize the first letter
+namePart = namePart.toUpperCase()
+document.getElementById('orderpage').textContent = `HI ${namePart}, YOU'RE PROFILE PAGE`;
 let userDocPath = "";
 let fieldsData = {};
 

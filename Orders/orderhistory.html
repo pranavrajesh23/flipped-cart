@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+/>
 <title>FlippedCart - Order History</title>
 <style>
   body {
@@ -11,10 +15,22 @@
     background: #f9f9f9;
   }
   h2 { text-align: center; margin-bottom: 10px; }
-  .filter-bar {
-    text-align: center;
-    margin-bottom: 20px;
-  }
+   .filter-bar
+   {
+  position: fixed;
+  margin-top: 78px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  align-items: center;
+  padding: 15px 10px;
+  background-color: #ff9f00;
+  color: white;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+   }
   .filter-btn {
     padding: 8px 16px;
     margin: 0 5px;
@@ -78,11 +94,133 @@
     margin-top: 10px;
     text-align: right;
   }
+  header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px 10px;
+  background-color: #2874f0;
+  color: white;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+#logo{
+    display: flex;
+    gap: 10px;
+    padding-right: 90px;
+}
+img{
+    width: 50px; 
+    height:50px;
+    object-fit: cover; 
+    border-radius: 30px; 
+    padding-top: 5px;
+}
+  header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    padding-bottom: 10px;
+  }
+  
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  
+  .nav-links a:hover {
+  transform: scale(1.05);
+}
+.top-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 35px;
+  /* background: #fff; */
+  padding: 15px;
+  border-radius: 12px;
+  /* box-shadow: 0 2px 8px rgba(0,0,0,0.1); */
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.icon-item i {
+  font-size: 25px;              /* bigger icons */
+  color: #ffffff;               /* default color */
+  transition: transform 0.2s, color 0.2s;
+}
+
+.icon-item span {
+  font-size: 13px;
+  color: #ffffff;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* Hover effects */
+.icon-item:hover i {
+  color: #ff9f00;
+  transform: scale(1.2);
+}
+#enter{
+    margin-top: 160px;
+}
 </style>
 </head>
 <body>
 
-<h2>Your Order History</h2>
+  <header>
+    <div id="logo">
+    <img src="../bg.png" alt="logo" onclick="window.location.href='../User/user.html'"/>
+    <h1 onclick="window.location.href='../User/user.html'">FlippedCart</h1>
+    </div>
+    <h2 id="orderpage"></h2>
+    <div class="nav-links">
+      <div class="top-icons">
+        <div class="icon-item">
+        <a id="wishlistLink"><i class="fa fa-heart" aria-hidden="true"></i></a>
+        <span>Wishlist</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="cartLink"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+        <span>Cart</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="ordersLink"><i class="fa fa-archive" aria-hidden="true"></i></a>
+        <span>Orders</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="profileLink"><i class="fa fa-user-circle" aria-hidden="true"></i></a>
+        <span>Profile</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="logoutBtn"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+        <span>Logout</span>
+      </div>
+    </div>
+  </div>
+</header>
 
 <div class="filter-bar">
   <button class="filter-btn active" data-status="All">All</button>
@@ -90,13 +228,36 @@
   <button class="filter-btn" data-status="Cancelled">Cancelled</button>
   <button class="filter-btn" data-status="Returned">Returned</button>
 </div>
+<div id="enter"><div id="historyContainer"></div></div>
 
-<div id="historyContainer"></div>
 
 <script>
 const projectId = "flippedcart8751";
 const historyContainer = document.getElementById("historyContainer");
 const userEmail = sessionStorage.getItem("googleEmail");
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.clear();
+  window.location.href = "../index.html";
+});
+document.getElementById('wishlistLink').addEventListener('click', () => {
+  window.location.href = "../Wishlist/wishlist.html";
+});
+document.getElementById('cartLink').addEventListener('click', () => {
+  window.location.href = "../Cart/cart.html";
+});
+document.getElementById('ordersLink').addEventListener('click', () => {
+  window.location.href = "../Orders/orders.html";
+});
+document.getElementById('profileLink').addEventListener('click', () => {
+  window.location.href = "../Profile/profile.html";
+});
+let localPart = userEmail.split('@')[0];
+// Remove the number and anything after it (like 2021eee)
+let namePart = localPart.split(/[0-9]/)[0];
+console.log(namePart);
+// Capitalize the first letter
+namePart = namePart.toUpperCase()
+document.getElementById('orderpage').textContent = `HI ${namePart}, YOU'RE ORDER HISTORY`;
 let allOrders = [];
 
 // Fetch order history

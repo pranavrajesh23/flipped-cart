@@ -1,7 +1,29 @@
 const projectId = "flippedcart8751";
 const ordersContainer = document.getElementById("ordersContainer");
 const userEmail = sessionStorage.getItem("googleEmail");
-
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.clear();
+  window.location.href = "../index.html";
+});
+document.getElementById('wishlistLink').addEventListener('click', () => {
+  window.location.href = "../Wishlist/wishlist.html";
+});
+document.getElementById('cartLink').addEventListener('click', () => {
+  window.location.href = "../Cart/cart.html";
+});
+document.getElementById('ordersLink').addEventListener('click', () => {
+  window.location.href = "../Orders/orders.html";
+});
+document.getElementById('profileLink').addEventListener('click', () => {
+  window.location.href = "../Profile/profile.html";
+});
+let localPart = userEmail.split('@')[0];
+// Remove the number and anything after it (like 2021eee)
+let namePart = localPart.split(/[0-9]/)[0];
+console.log(namePart);
+// Capitalize the first letter
+namePart = namePart.toUpperCase()
+document.getElementById('orderpage').textContent = `HI ${namePart}, YOU'RE ACIVE ORDERS`;
 // fetch all orders
 async function fetchOrders() {
   const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
@@ -183,7 +205,6 @@ async function moveOrderToHistory(orderItems, statusType) {
       { method: "DELETE" }
     );
   }
-
   fetchOrders(); // refresh
 }
 

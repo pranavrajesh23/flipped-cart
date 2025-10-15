@@ -4,16 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="profile.css">
+ <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+/>
 <title>FlippedCart - Profile</title>
 </head>
 <body>
-<div class="top-nav">
-  <button onclick="window.location.href='../User/user.html'">Move to Home</button>
-</div>
+ <header>
+    <div id="logo">
+    <img src="../bg.png" alt="logo" onclick="window.location.href='../User/user.html'"/>
+    <h1 onclick="window.location.href='../User/user.html'">FlippedCart</h1>
+    </div>
+    <h2 id="orderpage"></h2>
+    <div class="nav-links">
+      <div class="top-icons">
+        <div class="icon-item">
+        <a id="wishlistLink"><i class="fa fa-heart" aria-hidden="true"></i></a>
+        <span>Wishlist</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="cartLink"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+        <span>Cart</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="ordersLink"><i class="fa fa-archive" aria-hidden="true"></i></a>
+        <span>Orders</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="profileLink"><i class="fa fa-user-circle" aria-hidden="true"></i></a>
+        <span>Profile</span>
+      </div>
+
+      <div class="icon-item">
+        <a id="logoutBtn"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+        <span>Logout</span>
+      </div>
+    </div>
+  </div>
+</header>
+
 <div class="profile-container">
   <div class="profile-header">
     <img id="profileImage" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture">
-    <div id="userName" class="username"></div>
+    <div id="userName" class="username">...</div>
   </div>
 
   <div id="profileFields"></div>
