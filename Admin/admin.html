@@ -5,18 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FlippedCart - Admin Dashboard</title>
 <link rel="stylesheet" href="admin.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="container">
   <h1>🛍️ FlippedCart Admin Panel</h1>
 
-  <div id="adminInfo">
+  <div id="adminInfo" style="display: flex; justify-content: center;">
     <span id="adminEmail"></span>
     <button onclick="signOut()">Sign Out</button>
-  </div>
-
-  <div id="navMenu">
-    <button onclick="showSection('profile')">Profile</button>
+        <button onclick="showSection('profile')">Profile</button>
     <button onclick="showSection('crud')">CRUD Operations</button>
   </div>
 
@@ -74,6 +72,15 @@
     <button id="overlayNo">No</button>
   </div>
 </div>
+<!-- Report Preview Modal -->
+<div id="reportModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeReport()">&times;</span>
+    <div id="reportContent"></div>
+    <button id="downloadPdfBtn">Download PDF</button>
+  </div>
+</div>
+
 
 <script src="admin.js"></script>
 </body>
