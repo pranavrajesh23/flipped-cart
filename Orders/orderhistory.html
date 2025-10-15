@@ -133,10 +133,10 @@ async function fetchOrderHistory() {
       quantity: d.fields.quantity.integerValue,
       imgUrl: d.fields.imgUrl.stringValue,
       orderDate: d.fields.orderDate.stringValue,
-    //   deliveryDate: d.fields.deliveryDate.stringValue,
+      deliveryDate: d.fields.deliveryDate.stringValue,
       status: d.fields.status.stringValue
     }));
-
+    console.log(allOrders);
   displayOrderHistory(allOrders);
 }
 
@@ -175,14 +175,12 @@ function displayOrderHistory(orders, filterStatus = "All") {
       const orderDiv = document.createElement("div");
       orderDiv.className = "order";
       const od = new Date(orderItems[0].orderDate).toDateString();
-    //   const dd=new Date(dd)
-    //   dd.setDate(od.getDate()+7)
       const header = document.createElement("div");
       header.className = "order-header";
       header.innerHTML = `
         <div><strong>Order ID:</strong> ${orderId}</div>
-        <div>Order Date: ${od}}</div>
-        <div>Delivery Date: ${od}</div>
+        <div>Order Date: ${new Date(orderItems[0].orderDate).toDateString()}</div>
+        <div>Delivery Date: ${orderItems[0].deliveryDate}</div>
       `;
       orderDiv.appendChild(header);
 
