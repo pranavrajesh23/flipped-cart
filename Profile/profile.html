@@ -7,12 +7,15 @@
 <title>FlippedCart - Profile</title>
 </head>
 <body>
-
-<div class="profile-container">
-    <div class="top-nav">
+<div class="top-nav">
   <button onclick="window.location.href='../User/user.html'">Move to Home</button>
 </div>
-  <h2>User Profile</h2>
+<div class="profile-container">
+  <div class="profile-header">
+    <img id="profileImage" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture">
+    <div id="userName" class="username"></div>
+  </div>
+
   <div id="profileFields"></div>
 
   <div id="addFieldSection">
@@ -26,7 +29,6 @@
   <button id="updateBtn" onclick="enableEditing()">Update Info</button>
   <button id="saveBtn" style="display:none;" onclick="saveChanges()">Save Changes</button>
 </div>
-
 <script src="profile.js"></script>
 
 </body>

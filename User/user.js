@@ -137,10 +137,22 @@ function renderProducts(products) {
 
   // Cart toggle
   document.querySelectorAll('.cart-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async() => {
+      try{
       btn.classList.toggle('cart-active');
       const icon = btn.querySelector('i');
       icon.style.color = btn.classList.contains('cart-active') ? '#ffd700' : 'white';
+      const productCard = btn.closest('.product-card');
+      const id = productCard.dataset.id;
+      const name = productCard.dataset.name;
+      const price = productCard.dataset.price;
+      const image = productCard.querySelector('img').src;
+      const quantity = document.getElementById(`qty-${id}`).value;
+      await addToCart(id, name, price,image,quantity);
+      }
+      catch (err) {
+      console.error('Cart button handler error:', err);
+    }
     });
   });
 }
@@ -166,15 +178,16 @@ function applyFilters() {
 }
 
 // Add to Cart
-async function addToCart(id, name, price) {
-  const qty = document.getElementById(`qty-${id}`).value;
+async function addToCart(id, name, price,image,quantity) {
+  // const qty = document.getElementById(`qty-${id}`).value;
   const userId = sessionStorage.getItem("googleEmail") || "guest@example.com";
   const data = {
     fields: {
-      productId: { stringValue: id },
+     productId: { stringValue: id },
       name: { stringValue: name },
-      price: { integerValue: price },
-      quantity: { integerValue: qty },
+      price: { stringValue: price },
+      imgurl:{stringValue:image},
+      quantity: { integerValue: quantity },
       user: { stringValue: userId }
     }
   };

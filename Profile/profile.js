@@ -21,13 +21,14 @@ async function loadProfile() {
     ""
   );
   fieldsData = userDoc.fields;
+  console.log(fieldsData);
+  document.getElementById("userName").textContent = fieldsData.fullName.stringValue || "User";
   renderProfile(fieldsData);
 }
 
 function renderProfile(fields) {
   const container = document.getElementById("profileFields");
   container.innerHTML = "";
-
   for (const key in fields) {
     const value = fields[key].stringValue || "";
     const label = document.createElement("label");
