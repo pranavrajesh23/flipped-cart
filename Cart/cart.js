@@ -81,6 +81,7 @@ function renderCartItems() {
         Quantity: 
         <input type="number" min="1" class="quantity-input" id="qty_${item.id}" value="${item.quantity}"> × ₹${item.price} = ₹<span id="subTotal_${item.id}">${item.quantity * item.price}</span>
       </div>
+      <button class="remove-btn" id="remove_${item.id}">🗑️ Remove</button>
     `;
     cartContainer.appendChild(div);
 
@@ -113,6 +114,18 @@ function renderCartItems() {
         })
       });
     });
+
+    const removeBtn = document.getElementById(`remove_${item.id}`);
+    removeBtn.addEventListener('click', async () => {
+      // Delete from Firestore
+      await fetch(`${CART_URL}/${item.id}`, { method: "DELETE" });
+      // Remove from UI + local list
+      div.remove();
+      cartItems = cartItems.filter(i => i.id !== item.id);
+      selectedItems.delete(item.id);
+      updateTotal();
+    });
+    
   });
 }
 

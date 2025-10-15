@@ -47,25 +47,32 @@
   </div>
 </header>
 
+
 <div class="profile-container">
-  <div class="profile-header">
-    <img id="profileImage" class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture">
-    <div id="userName" class="username">...</div>
+  <div class="profile-left">
+    <img id="profilePic" class="profile-pic" src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80">
+    <div id="userName" class="profile-name">User Name</div>
+    <button id="deleteBtn" class="btn">Delete Account</button>
+    <button id="historyBtn" class="btn">Order History</button>
   </div>
 
-  <div id="profileFields"></div>
+  <div class="profile-right">
+    <div id="profileFields" class="profile-fields"></div>
 
-  <div id="addFieldSection">
-    <div class="extra-field">
-      <input type="text" id="newFieldName" placeholder="Field name (e.g. phone)">
-      <input type="text" id="newFieldValue" placeholder="Value (e.g. 9876543210)">
+    <div class="button-row">
+      <button id="updateBtn" class="btn">Update Info</button>
+      <button id="saveBtn" class="btn" onclick="saveChanges()">Save Changes</button>
     </div>
-    <button onclick="addField()">Add Field</button>
+
+    <div id="addFieldSection">
+      <input type="text" id="newFieldName" placeholder="Field name">
+      <input type="text" id="newFieldValue" placeholder="Field value">
+      <button class="btn" style="background:#ffc107; color:#000;" onclick="addField()">Add Field</button>
+    </div>
   </div>
 
-  <button id="updateBtn" onclick="enableEditing()">Update Info</button>
-  <button id="saveBtn" style="display:none;" onclick="saveChanges()">Save Changes</button>
 </div>
+
 <script src="profile.js"></script>
 
 </body>
